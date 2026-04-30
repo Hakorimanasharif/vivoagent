@@ -9,6 +9,10 @@ import DashboardHome from "./pages/dashboard/DashboardHome";
 import PendingDeposits from "./pages/dashboard/PendingDeposits";
 import PendingWithdrawals from "./pages/dashboard/PendingWithdrawals";
 import UserTiers from "./pages/dashboard/UserTiers";
+import Users from "./pages/dashboard/Users";
+import Investors from "./pages/dashboard/Investors";
+import DepositedUsers from "./pages/dashboard/DepositedUsers";
+import WithdrawnUsers from "./pages/dashboard/WithdrawnUsers";
 import Profile from "./pages/dashboard/Profile";
 
 const queryClient = new QueryClient();
@@ -26,6 +30,10 @@ const App = () => (
             <Route index element={<DashboardHome />} />
             <Route path="pending-deposits" element={<PendingDeposits />} />
             <Route path="pending-withdrawals" element={<PendingWithdrawals />} />
+            <Route path="users" element={<Users />} />
+            <Route path="investors" element={<Investors />} />
+            <Route path="deposited-users" element={<DepositedUsers />} />
+            <Route path="withdrawn-users" element={<WithdrawnUsers />} />
             <Route path="user-tiers" element={<UserTiers />} />
             <Route path="profile" element={<Profile />} />
           </Route>

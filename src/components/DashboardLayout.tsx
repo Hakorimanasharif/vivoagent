@@ -2,11 +2,20 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import {
-  DollarSign, Clock, ArrowDownCircle, Users, Layers,
-  Menu, X, Search, Shield, LogOut, LayoutDashboard, User
+  DollarSign, Clock, ArrowDownCircle, Users, Layers, TrendingUp,
+  Menu, X, Search, Shield, LogOut, LayoutDashboard, User, ChevronDown, ArrowUpCircle
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import AgentChat from "@/components/AgentChat";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const API_BASE = 'https://globalbackend-oqoz.onrender.com';
 
@@ -20,9 +29,13 @@ const navSections = [
   {
     label: "Operations",
     items: [
+      { title: "Users",               path: "/dashboard/users",              icon: Users },
+      { title: "Investors",           path: "/dashboard/investors",          icon: TrendingUp },
+      { title: "Deposited Users",     path: "/dashboard/deposited-users",    icon: DollarSign },
+      { title: "Withdrawn Users",     path: "/dashboard/withdrawn-users",    icon: ArrowUpCircle },
       { title: "Pending Deposits",    path: "/dashboard/pending-deposits",   icon: DollarSign },
       { title: "Pending Withdrawals", path: "/dashboard/pending-withdrawals", icon: ArrowDownCircle },
-      { title: "User Tiers",          path: "/dashboard/user-tiers",         icon: Layers },
+      { title: "Platform Tiers",      path: "/dashboard/user-tiers",         icon: Layers },
     ]
   },
   {
@@ -176,15 +189,42 @@ const DashboardLayout = () => {
 
           <div className="flex-1" />
 
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-              {agentUser?.name?.[0]?.toUpperCase() || 'A'}
-            </div>
-            <div className="hidden sm:block">
-              <p className="text-xs font-semibold">{agentUser?.name || 'Agent'}</p>
-              <p className="text-[10px] text-muted-foreground">Agent</p>
-            </div>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-3 hover:bg-muted/50 p-2 rounded-xl transition-colors outline-none focus:ring-2 focus:ring-primary/20">
+              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shadow-sm border border-primary/20">
+                {agentUser?.name?.[0]?.toUpperCase() || 'A'}
+              </div>
+              <div className="hidden sm:flex flex-col items-start">
+                <p className="text-sm font-bold leading-none">{agentUser?.name || 'Agent'}</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">Platform Agent</p>
+              </div>
+              <ChevronDown className="h-4 w-4 text-muted-foreground hidden sm:block" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 shadow-xl rounded-xl">
+              <DropdownMenuLabel>
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{agentUser?.name}</p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {agentUser?.email}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/dashboard/profile')} className="cursor-pointer gap-2">
+                <User className="h-4 w-4" />
+                <span>My Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/dashboard/profile')} className="cursor-pointer gap-2">
+                <Shield className="h-4 w-4" />
+                <span>Account Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer gap-2 text-red-500 focus:bg-red-50 focus:text-red-600">
+                <LogOut className="h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </header>
 
         {/* Page content */}
@@ -192,6 +232,9 @@ const DashboardLayout = () => {
           <Outlet />
         </main>
       </div>
+
+      {/* Floating agent chat */}
+      <AgentChat />
     </div>
   );
 };
