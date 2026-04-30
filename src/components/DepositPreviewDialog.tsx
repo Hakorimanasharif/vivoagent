@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 
@@ -25,6 +25,7 @@ const DepositPreviewDialog = ({ open, onOpenChange, deposit, onApprove, onReject
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Deposit Proof - {deposit.name}</DialogTitle>
+          <DialogDescription>Review the payment confirmation screenshot submitted by the user.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3 text-sm">

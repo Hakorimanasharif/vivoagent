@@ -8,7 +8,7 @@ import SmartPagination from "@/components/SmartPagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ArrowDownCircle, Clock, Users, AlertTriangle, Search, Landmark } from "lucide-react";
 import { toast } from "sonner";
 
@@ -151,7 +151,10 @@ const PendingWithdrawals = () => {
       {/* Bank Info Dialog */}
       <Dialog open={showBank} onOpenChange={setShowBank}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>Bank Information</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Bank Information</DialogTitle>
+            <DialogDescription>Review the recipient's bank or mobile money account details.</DialogDescription>
+          </DialogHeader>
           {selectedUser && (
             <div className="space-y-4">
               <div className="flex items-center gap-3 mb-4">

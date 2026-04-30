@@ -140,6 +140,47 @@ const Users = () => {
     id: user._id
   }));
 
+  const wipeBalanceMutation = (userId: string) => {
+    if (!window.confirm("Are you sure you want to wipe this user's balance to 0? This cannot be undone.")) return;
+    
+    fetch(`${API_BASE}/api/admin/reset-user-balance`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${agentToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ userId })
+    })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message || "Balance wiped successfully");
+      refetch();
+    })
+    .catch(err => alert("Failed to wipe balance"));
+  };
+
+  const columnsWithActions = [
+    ...columns,
+    {
+      accessorKey: "actions",
+      header: "Actions",
+      cell: ({ row }: any) => (
+        <div className="flex gap-2">
+          {row.role !== 'admin' && (
+            <Button 
+              size="sm" 
+              variant="destructive" 
+              className="h-8 text-[10px] px-2 font-bold"
+              onClick={() => wipeBalanceMutation(row.id)}
+            >
+              WIPE BALANCE
+            </Button>
+          )}
+        </div>
+      )
+    }
+  ];
+
   return (
     <div className="space-y-6 pb-10">
       <PageHeader title="User Management" breadcrumb="Users" />
@@ -196,7 +237,7 @@ const Users = () => {
         </div>
 
         <DataTable
-          columns={columns}
+          columns={columnsWithActions}
           data={tableData}
           loading={isLoading}
           pagination={
