@@ -7,7 +7,6 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import AgentChat from "@/components/AgentChat";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -232,9 +231,6 @@ const DashboardLayout = () => {
           <Outlet />
         </main>
       </div>
-
-      {/* Floating agent chat */}
-      <AgentChat />
     </div>
   );
 };
