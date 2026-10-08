@@ -71,30 +71,26 @@ const DashboardHome = () => {
           title="Total Users"
           value={data?.totalUsers?.toLocaleString() || '—'}
           icon={Users}
-          variant="gradient"
-          gradient="from-blue-600 to-blue-700"
+          tone="navy"
         />
         <StatCard
           title="Total Investors"
           value={data?.totalInvestors?.toLocaleString() || '—'}
           icon={TrendingUp}
-          variant="gradient"
-          gradient="from-indigo-600 to-indigo-700"
+          tone="green"
         />
         <StatCard
           title="Pending Deposits"
           value={`${data?.pendingDeposits?.toLocaleString() ?? '0'} pending`}
           icon={DollarSign}
-          variant="gradient"
-          gradient="from-emerald-600 to-emerald-700"
+          tone="gold"
           onClick={() => navigate('/dashboard/pending-deposits')}
         />
         <StatCard
           title="Pending Withdrawals"
           value={`${data?.pendingWithdrawals?.toLocaleString() ?? '0'} pending`}
           icon={ArrowDownCircle}
-          variant="gradient"
-          gradient="from-amber-600 to-amber-700"
+          tone="red"
           onClick={() => navigate('/dashboard/pending-withdrawals')}
         />
       </div>

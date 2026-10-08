@@ -177,9 +177,9 @@ const DashboardLayout = () => {
           </button>
 
           <div className="hidden xl:flex items-center gap-4 animate-in fade-in slide-in-from-left-2 duration-500">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 rounded-full border border-blue-500/20">
-              <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
-              <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Agent Mode</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-[#0B4D33]/10 rounded-full border border-[#0B4D33]/20">
+              <div className="h-1.5 w-1.5 rounded-full bg-[#0B4D33] animate-pulse" />
+              <span className="text-[10px] font-bold text-[#0B4D33] uppercase tracking-widest">Agent Mode</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground border-l border-border/50 pl-4 font-mono text-[11px] font-medium">
               <Clock className="h-3.5 w-3.5 text-primary/60" />
