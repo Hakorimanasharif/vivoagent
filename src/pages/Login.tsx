@@ -39,7 +39,11 @@ const Login = () => {
         localStorage.setItem('agentUser', JSON.stringify(data.user));
         navigate("/dashboard", { replace: true });
       } else {
-        setError(data.message || 'Login failed');
+        const serverMsg =
+          data.message ||
+          (Array.isArray(data.errors) && data.errors[0]?.msg) ||
+          'Login failed';
+        setError(serverMsg);
       }
     } catch {
       setError('Network error. Please try again.');
