@@ -19,7 +19,7 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await fetch('https://globalbackend-oqoz.onrender.com/api/auth/agent/login', {
+      const response = await fetch('https://nexorabackend-eb0p.onrender.com/api/auth/agent/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

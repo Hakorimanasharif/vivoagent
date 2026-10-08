@@ -12,7 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Clock, DollarSign, Users, AlertCircle, Eye, Search, Check, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-const API_BASE = 'https://globalbackend-oqoz.onrender.com';
+const API_BASE = 'https://nexorabackend-eb0p.onrender.com';
 
 const PendingDeposits = () => {
   const [preview, setPreview] = useState<{ id: string; name: string; amount: string; date: string; screenshot?: string } | null>(null);

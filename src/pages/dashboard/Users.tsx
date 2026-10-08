@@ -26,7 +26,7 @@ const Users = () => {
   const [page, setPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const agentToken = localStorage.getItem('agentToken') || '';
-  const API_BASE = 'https://globalbackend-oqoz.onrender.com';
+  const API_BASE = 'https://nexorabackend-eb0p.onrender.com';
 
   // Fetch Users Stats (Total, Active, etc.)
   const { data: stats } = useQuery({

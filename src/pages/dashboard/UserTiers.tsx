@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import SmartPagination from '@/components/SmartPagination';
 
-const API_BASE = 'https://globalbackend-oqoz.onrender.com';
+const API_BASE = 'https://nexorabackend-eb0p.onrender.com';
 
 const statusColor: Record<string, string> = {
   active: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',

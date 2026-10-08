@@ -48,7 +48,7 @@ const WithdrawnUsers = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['withdrawn-users', page, search],
     queryFn: async () => {
-      const url = new URL('https://globalbackend-oqoz.onrender.com/api/users/withdrawn');
+      const url = new URL('https://nexorabackend-eb0p.onrender.com/api/users/withdrawn');
       url.searchParams.append('page', page.toString());
       url.searchParams.append('limit', '20');
       if (search) url.searchParams.append('search', search);

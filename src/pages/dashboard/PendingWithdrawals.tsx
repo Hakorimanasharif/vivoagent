@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ArrowDownCircle, Clock, Users, AlertTriangle, Search, Landmark } from "lucide-react";
 import { toast } from "sonner";
 
-const API_BASE = 'https://globalbackend-oqoz.onrender.com';
+const API_BASE = 'https://nexorabackend-eb0p.onrender.com';
 
 const PendingWithdrawals = () => {
   const [showBank, setShowBank] = useState(false);

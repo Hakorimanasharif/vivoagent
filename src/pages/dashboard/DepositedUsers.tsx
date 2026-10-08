@@ -36,7 +36,7 @@ const DepositedUsers = () => {
     queryKey: ['deposited-users', page, search],
     queryFn: async () => {
       if (!agentToken) throw new Error('No token');
-      const url = new URL('https://globalbackend-oqoz.onrender.com/api/users/deposited');
+      const url = new URL('https://nexorabackend-eb0p.onrender.com/api/users/deposited');
       url.searchParams.append('page', page.toString());
       url.searchParams.append('limit', '20');
       if (search) url.searchParams.append('search', search);
@@ -53,7 +53,7 @@ const DepositedUsers = () => {
     queryKey: ['deposited-users-stats'],
     queryFn: async () => {
       if (!agentToken) throw new Error('No token');
-      const response = await fetch('https://globalbackend-oqoz.onrender.com/api/users/deposited/stats/overview', {
+      const response = await fetch('https://nexorabackend-eb0p.onrender.com/api/users/deposited/stats/overview', {
         headers: { 'Authorization': `Bearer ${agentToken}` }
       });
       if (!response.ok) throw new Error('Failed to fetch deposited users stats');
@@ -66,7 +66,7 @@ const DepositedUsers = () => {
     queryKey: ['pending-deposits', page],
     queryFn: async () => {
       if (!agentToken) throw new Error('No token');
-      const url = new URL('https://globalbackend-oqoz.onrender.com/api/transactions/pending');
+      const url = new URL('https://nexorabackend-eb0p.onrender.com/api/transactions/pending');
       url.searchParams.append('page', page.toString());
       url.searchParams.append('limit', '20');
       const response = await fetch(url, {

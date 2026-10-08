@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const API_BASE = 'https://globalbackend-oqoz.onrender.com';
+const API_BASE = 'https://nexorabackend-eb0p.onrender.com';
 
 const navSections = [
   {
@@ -80,27 +80,27 @@ const DashboardLayout = () => {
         <div className="fixed inset-0 bg-foreground/50 z-40 lg:hidden backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar (Nexora team style: deep green, like admin) */}
       <aside
         className={cn(
-          "fixed lg:sticky top-0 left-0 z-50 h-screen w-64 flex flex-col bg-sidebar border-r border-sidebar-border transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none",
+          "fixed lg:sticky top-0 left-0 z-50 h-screen w-64 flex flex-col bg-gradient-to-b from-[#0a3d2e] to-[#04170f] text-white border-r border-white/10 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none overflow-hidden",
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
         {/* Logo */}
-        <div className="p-6 flex items-center justify-between border-b border-sidebar-border/30">
+        <div className="p-6 flex items-center justify-between border-b border-white/10">
           <Link to="/dashboard" className="flex items-center gap-3 group">
-            <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30 group-hover:scale-105 transition-transform">
-              <Shield className="h-5 w-5 text-primary-foreground" />
+            <div className="h-10 w-10 rounded-2xl bg-[#C9A84C] flex items-center justify-center text-[#04170f] font-black text-sm shadow-sm group-hover:scale-105 transition-transform">
+              N
             </div>
             <div>
-              <h1 className="text-sm font-black text-sidebar-foreground leading-none tracking-tight">CASHGROW</h1>
-              <p className="text-[10px] text-sidebar-foreground/40 mt-1 font-bold uppercase tracking-widest">Agent Portal</p>
+              <h1 className="text-sm font-black text-white leading-none tracking-tight">NEXORA</h1>
+              <p className="text-[10px] text-emerald-100/60 mt-1 font-bold uppercase tracking-widest">Agent Portal</p>
             </div>
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 rounded-lg text-sidebar-foreground/40 hover:text-sidebar-foreground hover:bg-sidebar-border/50 transition-colors"
+            className="lg:hidden w-9 h-9 grid place-items-center rounded-full text-emerald-100/70 hover:text-white hover:bg-white/10 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -110,7 +110,7 @@ const DashboardLayout = () => {
         <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-8 no-scrollbar">
           {navSections.map((section) => (
             <div key={section.label} className="space-y-2">
-              <h3 className="px-3 text-[10px] font-black uppercase tracking-[0.2em] text-sidebar-foreground/30">
+              <h3 className="px-3 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-100/50">
                 {section.label}
               </h3>
               <div className="space-y-1">
@@ -125,14 +125,14 @@ const DashboardLayout = () => {
                       to={item.path}
                       onClick={() => setSidebarOpen(false)}
                       className={cn(
-                        "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all group relative overflow-hidden",
+                        "flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-bold transition-all group relative overflow-hidden",
                         active
-                          ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                          : "text-sidebar-foreground/60 hover:bg-sidebar-border/40 hover:text-sidebar-foreground"
+                          ? "bg-white text-[#0A2E1F] shadow-lg shadow-black/20"
+                          : "text-emerald-100/70 hover:bg-white/10 hover:text-white"
                       )}
                     >
                       {active && (
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary-foreground rounded-r-full" />
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#C9A84C] rounded-r-full" />
                       )}
                       <item.icon className={cn("h-4 w-4 shrink-0 transition-transform group-hover:scale-110", active && "animate-pulse")} />
                       <span className="flex-1 truncate">{item.title}</span>
@@ -145,17 +145,17 @@ const DashboardLayout = () => {
         </nav>
 
         {/* User footer */}
-        <div className="p-3 border-t border-sidebar-border/50">
-          <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-sidebar-border/50 transition-colors group">
-            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs shadow-sm shrink-0">
+        <div className="p-3 border-t border-white/10">
+          <div className="flex items-center gap-3 p-2 rounded-2xl hover:bg-white/10 transition-colors group">
+            <div className="h-9 w-9 rounded-2xl bg-[#C9A84C] flex items-center justify-center text-[#04170f] font-black text-xs shadow-sm shrink-0">
               {agentUser?.name?.[0]?.toUpperCase() || 'A'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-sidebar-foreground truncate">{agentUser?.name || 'Agent'}</p>
-              <p className="text-[10px] text-sidebar-foreground/50 truncate">{agentUser?.email || 'agent@example.com'}</p>
+              <p className="text-xs font-bold text-white truncate">{agentUser?.name || 'Agent'}</p>
+              <p className="text-[10px] text-emerald-100/60 truncate">{agentUser?.email || 'agent@example.com'}</p>
             </div>
             <button
-              className="p-1.5 rounded-lg text-sidebar-foreground/40 hover:text-red-400 hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100"
+              className="w-8 h-8 grid place-items-center rounded-full text-emerald-100/60 hover:text-white hover:bg-white/10 transition-colors opacity-0 group-hover:opacity-100"
               onClick={handleLogout}
               title="Logout"
             >

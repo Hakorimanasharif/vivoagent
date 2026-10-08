@@ -9,7 +9,7 @@ import {
   Activity, Clock, Banknote, CheckCircle2
 } from "lucide-react";
 
-const API_BASE = 'https://globalbackend-oqoz.onrender.com';
+const API_BASE = 'https://nexorabackend-eb0p.onrender.com';
 
 const activityMeta: Record<string, { color: string; bg: string; Icon: typeof CheckCircle2 }> = {
   deposit: { color: "text-emerald-600", bg: "bg-emerald-50", Icon: Banknote },

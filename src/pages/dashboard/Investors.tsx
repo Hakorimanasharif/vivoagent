@@ -35,7 +35,7 @@ import { DataTable } from "@/components/DataTable";
 
 
 
-const API_BASE = 'https://globalbackend-oqoz.onrender.com';
+const API_BASE = 'https://nexorabackend-eb0p.onrender.com';
 
 const Investors = () => {
   const [searchTerm, setSearchTerm] = useState("");

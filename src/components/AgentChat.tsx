@@ -66,7 +66,7 @@ const AgentChat: React.FC = () => {
 
   const queryClient = useQueryClient();
   const agentToken = localStorage.getItem('agentToken') || '';
-  const API_BASE = 'https://globalbackend-oqoz.onrender.com';
+  const API_BASE = 'https://nexorabackend-eb0p.onrender.com';
 
   useEffect(() => {
     try {

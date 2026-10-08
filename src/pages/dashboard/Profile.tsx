@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Eye, EyeOff, User, Mail, Phone, Lock, Loader2, ShieldCheck, Camera } from "lucide-react";
 import { toast } from "sonner";
 
-const API_BASE = 'https://globalbackend-oqoz.onrender.com';
+const API_BASE = 'https://nexorabackend-eb0p.onrender.com';
 
 const Profile = () => {
   const [agentUser, setAgentUser] = useState<any>(null);
