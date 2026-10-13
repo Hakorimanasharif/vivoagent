@@ -14,6 +14,8 @@ interface DepositPreviewProps {
     amount: string;
     date: string;
     screenshot?: string;
+    senderPhone?: string;
+    senderName?: string;
   } | null;
 }
 
@@ -45,6 +47,18 @@ const DepositPreviewDialog = ({ open, onOpenChange, deposit, onApprove, onReject
               <p className="text-muted-foreground">Status</p>
               <p className="font-medium text-warning">Pending Review</p>
             </div>
+            {deposit.senderPhone && (
+              <div>
+                <p className="text-muted-foreground">Sender phone (Paid From)</p>
+                <p className="font-medium text-foreground font-mono">{deposit.senderPhone}</p>
+              </div>
+            )}
+            {deposit.senderName && (
+              <div>
+                <p className="text-muted-foreground">Sender name</p>
+                <p className="font-medium text-foreground">{deposit.senderName}</p>
+              </div>
+            )}
           </div>
 
           {/* Deposit proof image display */}

@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link, useLocation, Outlet } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { io, type Socket } from "socket.io-client";
+import { toast } from "sonner";
 import {
-  DollarSign, Clock, ArrowDownCircle, Users, Layers, TrendingUp,
-  Menu, X, Search, Shield, LogOut, LayoutDashboard, User, ChevronDown, ArrowUpCircle
+  DollarSign, Clock, ArrowDownCircle, Users, Layers, TrendingUp, Bell,
+  Menu, X, Shield, LogOut, LayoutDashboard, User, ChevronDown, ArrowUpCircle
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -15,8 +17,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import AgentNotificationDropdown from "@/components/AgentNotificationDropdown";
+import AgentBrowserNotificationsBar from "@/components/AgentBrowserNotificationsBar";
 
-const API_BASE = 'https://nexorabackend-eb0p.onrender.com';
+const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || 'https://nexorabackend-eb0p.onrender.com';
 
 const navSections = [
   {
@@ -32,8 +36,9 @@ const navSections = [
       { title: "Investors",           path: "/dashboard/investors",          icon: TrendingUp },
       { title: "Deposited Users",     path: "/dashboard/deposited-users",    icon: DollarSign },
       { title: "Withdrawn Users",     path: "/dashboard/withdrawn-users",    icon: ArrowUpCircle },
-      { title: "Pending Deposits",    path: "/dashboard/pending-deposits",   icon: DollarSign },
-      { title: "Pending Withdrawals", path: "/dashboard/pending-withdrawals", icon: ArrowDownCircle },
+      { title: "Pending Deposits",    path: "/dashboard/pending-deposits",   icon: DollarSign, badge: "pending-deposits" },
+      { title: "Pending Withdrawals", path: "/dashboard/pending-withdrawals", icon: ArrowDownCircle, badge: "pending-withdrawals" },
+      { title: "Notifications",       path: "/dashboard/notifications",      icon: Bell, badge: "notifications" },
       { title: "Platform Tiers",      path: "/dashboard/user-tiers",         icon: Layers },
     ]
   },
@@ -48,10 +53,15 @@ const navSections = [
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [agentUser, setAgentUser] = useState<any>(null);
+  const [agentToken, setAgentToken] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
 
   const [currentTime, setCurrentTime] = useState(new Date());
+  const seenAlertRef = useRef<Set<string>>(new Set());
+  const bgAlertCount = useRef(0);
+  const origTitle = useRef(typeof document !== 'undefined' ? document.title : 'Nexora Agent');
 
   useEffect(() => {
     const userStr = localStorage.getItem('agentUser');
@@ -60,11 +70,262 @@ const DashboardLayout = () => {
       navigate('/login');
       return;
     }
-    if (userStr) setAgentUser(JSON.parse(userStr));
+    if (userStr) {
+      try { setAgentUser(JSON.parse(userStr)); } catch { /* ignore */ }
+    }
+    setAgentToken(token);
 
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Pleasant deposit/withdrawal chime + vibration (background-tab safe)
+  const playAlertSound = () => {
+    try {
+      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!Ctx) return;
+      const ctx = new Ctx();
+      if (ctx.state === 'suspended') void ctx.resume().catch(() => {});
+      const now = ctx.currentTime;
+      [523.25, 659.25, 783.99].forEach((freq, i) => {
+        const offset = i * 0.13;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.001, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.3, now + offset + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.5);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + offset);
+        osc.stop(now + offset + 0.55);
+      });
+      setTimeout(() => void ctx.close().catch(() => {}), 1200);
+    } catch { /* ignore */ }
+    try {
+      if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
+    } catch { /* ignore */ }
+  };
+
+  const flashTitle = (text: string) => {
+    try {
+      if (!document.hidden) return;
+      bgAlertCount.current += 1;
+      document.title = `(${bgAlertCount.current}) ${text}`;
+    } catch { /* ignore */ }
+  };
+
+  useEffect(() => {
+    const reset = () => {
+      bgAlertCount.current = 0;
+      try { document.title = origTitle.current; } catch { /* ignore */ }
+    };
+    document.addEventListener('visibilitychange', reset);
+    window.addEventListener('focus', reset);
+    return () => {
+      document.removeEventListener('visibilitychange', reset);
+      window.removeEventListener('focus', reset);
+    };
+  }, []);
+
+  const pushBrowserNotification = (title: string, body: string) => {
+    try {
+      if (!('Notification' in window)) return;
+      if (Notification.permission !== 'granted') return;
+      const n = new Notification(title, { body, tag: `nexora-agent-${Date.now()}` });
+      n.onclick = () => {
+        try { window.focus(); } catch { /* ignore */ }
+        n.close();
+      };
+      setTimeout(() => n.close(), 10000);
+    } catch { /* ignore */ }
+  };
+
+  // Realtime deposit / withdrawal alerts — toast + browser notification + sound
+  useEffect(() => {
+    if (!agentToken) return;
+    let s: Socket | null = null;
+    try {
+      s = io(API_BASE, {
+        auth: { token: agentToken },
+        transports: ['websocket'],
+        reconnection: true,
+        reconnectionDelay: 2000,
+      });
+    } catch { return; }
+
+    const handleAlert = (kind: string, payload: any) => {
+      const notif = payload?.notification || payload || {};
+      const deposit = payload?.deposit;
+      const withdrawal = payload?.withdrawal;
+      const dedupeId =
+        String(notif?._id || deposit?.id || withdrawal?.id || `${kind}-${notif?.createdAt || Date.now()}`)
+        + '|' + String(notif?.metadata?.step || '')
+        + '|' + String(notif?.updatedAt || notif?.createdAt || '');
+      if (seenAlertRef.current.has(dedupeId)) return;
+      seenAlertRef.current.add(dedupeId);
+      setTimeout(() => seenAlertRef.current.delete(dedupeId), 30000);
+
+      void queryClient.invalidateQueries({ queryKey: ['agent-notifications-stats'] });
+      void queryClient.invalidateQueries({ queryKey: ['agent-notifications-dropdown'] });
+      void queryClient.invalidateQueries({ queryKey: ['agent-notifications'] });
+      void queryClient.invalidateQueries({ queryKey: ['pending-deposits'] });
+      void queryClient.invalidateQueries({ queryKey: ['pending-deposits-count'] });
+      void queryClient.invalidateQueries({ queryKey: ['pending-withdrawals'] });
+      void queryClient.invalidateQueries({ queryKey: ['pending-amount-groups'] });
+      void queryClient.invalidateQueries({ queryKey: ['pending-wallet-counts'] });
+      void queryClient.invalidateQueries({ queryKey: ['agent-dashboard-stats'] });
+
+      const type = String(notif?.type || (deposit ? 'deposit' : withdrawal ? 'withdrawal' : kind)).toLowerCase();
+      const isDeposit = type.includes('deposit') || kind.includes('deposit');
+      const amount = Number(deposit?.amount ?? withdrawal?.amount ?? notif?.metadata?.amount ?? 0);
+      const who = deposit?.user || withdrawal?.user || notif?.message || '';
+      const title = isDeposit
+        ? `New deposit${amount ? `: RWF ${amount.toLocaleString()}` : ''}`
+        : `New withdrawal${amount ? `: RWF ${amount.toLocaleString()}` : ''}`;
+      const description = typeof who === 'string' ? who.slice(0, 140) : 'A user just submitted a request.';
+
+      toast.success(title, { description, duration: 8000 });
+      playAlertSound();
+      pushBrowserNotification(title, description);
+      flashTitle(title);
+    };
+
+    s.on('new-notification', (p: any) => handleAlert('new-notification', p));
+    s.on('new-deposit', (p: any) => handleAlert('new-deposit', p));
+    s.on('new-withdrawal', (p: any) => handleAlert('new-withdrawal', p));
+    s.on('new-investment', (p: any) => handleAlert('new-investment', p));
+
+    return () => {
+      try { s?.disconnect(); } catch { /* ignore */ }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [agentToken]);
+
+  // Phone push subscription (installed PWA, app closed) via agent endpoints
+  const pushSubSent = useRef(false);
+  const tryPushSubscribe = async () => {
+    if (pushSubSent.current) return;
+    if (!agentToken) return;
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const syncSub = async (subJson: unknown) => {
+        const r = await fetch(`${API_BASE}/api/agents/push-subscribe`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${agentToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscription: subJson }),
+        });
+        if (!r.ok) throw new Error(`push-subscribe HTTP ${r.status}`);
+        pushSubSent.current = true;
+      };
+      const kr = await fetch(`${API_BASE}/api/agents/push-key`, {
+        headers: { 'Authorization': `Bearer ${agentToken}` }
+      });
+      if (!kr.ok) return;
+      const { publicKey } = await kr.json();
+      if (!publicKey) return;
+      const pad = (s: string) => s + '='.repeat((4 - (s.length % 4)) % 4);
+      const raw = atob(pad(publicKey.replace(/-/g, '+').replace(/_/g, '/')));
+      const key = new Uint8Array([...raw].map((c) => c.charCodeAt(0)));
+      const sameKey = (buf: ArrayBuffer | null) => {
+        if (!buf) return false;
+        const cur = new Uint8Array(buf);
+        if (cur.length !== key.length) return false;
+        for (let i = 0; i < cur.length; i++) if (cur[i] !== key[i]) return false;
+        return true;
+      };
+      const existing = await reg.pushManager.getSubscription();
+      if (existing) {
+        if (sameKey(existing.options?.applicationServerKey as ArrayBuffer | null)) {
+          await syncSub(existing.toJSON());
+          return;
+        }
+        try { await existing.unsubscribe(); } catch { /* ignore */ }
+      }
+      const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key });
+      await syncSub(sub.toJSON());
+    } catch {
+      /* push unavailable — socket alerts still work while open */
+    }
+  };
+  useEffect(() => {
+    pushSubSent.current = false;
+    void tryPushSubscribe();
+    const retry = () => { void tryPushSubscribe(); };
+    window.addEventListener('focus', retry);
+    window.addEventListener('nexora:agent-push-allowed', retry);
+    const id = window.setInterval(retry, 60000);
+    return () => {
+      window.removeEventListener('focus', retry);
+      window.removeEventListener('nexora:agent-push-allowed', retry);
+      window.clearInterval(id);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [agentToken]);
+
+  // Unread badge
+  const { data: notifStats } = useQuery({
+    queryKey: ['agent-notifications-stats'],
+    queryFn: async () => {
+      if (!agentToken) return { unread: 0 };
+      const r = await fetch(`${API_BASE}/api/notifications/stats`, {
+        headers: { 'Authorization': `Bearer ${agentToken}` }
+      });
+      if (!r.ok) return { unread: 0 };
+      return r.json();
+    },
+    enabled: !!agentToken,
+    refetchInterval: 30000,
+    staleTime: 15000,
+  });
+  const unreadCount = notifStats?.unread || 0;
+
+  // Pending deposits count for sidebar badge
+  const { data: pendingDepositsData } = useQuery({
+    queryKey: ['pending-deposits-count'],
+    queryFn: async () => {
+      if (!agentToken) return { count: 0 };
+      const url = new URL(`${API_BASE}/api/transactions/pending`);
+      url.searchParams.append('page', '1');
+      url.searchParams.append('limit', '1');
+      const r = await fetch(url.toString(), {
+        headers: { 'Authorization': `Bearer ${agentToken}` }
+      });
+      if (!r.ok) return { count: 0 };
+      const j = await r.json();
+      return { count: Number(j?.pagination?.totalDeposits ?? j?.deposits?.length ?? 0) };
+    },
+    enabled: !!agentToken,
+    refetchInterval: 30000,
+    staleTime: 15000,
+  });
+
+  // Pending withdrawals count for sidebar badge
+  const { data: pendingWithdrawalsData } = useQuery({
+    queryKey: ['pending-withdrawals-count'],
+    queryFn: async () => {
+      if (!agentToken) return { count: 0 };
+      const url = new URL(`${API_BASE}/api/withdrawals/pending`);
+      url.searchParams.append('page', '1');
+      url.searchParams.append('limit', '1');
+      const r = await fetch(url.toString(), {
+        headers: { 'Authorization': `Bearer ${agentToken}` }
+      });
+      if (!r.ok) return { count: 0 };
+      const j = await r.json();
+      return { count: Number(j?.pagination?.totalWithdrawals ?? j?.withdrawals?.length ?? 0) };
+    },
+    enabled: !!agentToken,
+    refetchInterval: 30000,
+    staleTime: 15000,
+  });
+
+  const pendingDepositsCount = pendingDepositsData?.count || 0;
+  const pendingWithdrawalsCount = pendingWithdrawalsData?.count || 0;
 
   const handleLogout = () => {
     localStorage.removeItem('agentToken');
@@ -113,10 +374,19 @@ const DashboardLayout = () => {
                 {section.label}
               </h3>
               <div className="space-y-1">
-                {section.items.map((item) => {
+                {(section.items as any[]).map((item) => {
                   const active = item.path === "/dashboard"
                     ? location.pathname === "/dashboard"
                     : location.pathname.startsWith(item.path);
+                  const badgeCount =
+                    (item as any).badge === "notifications"
+                      ? unreadCount
+                      : (item as any).badge === "pending-deposits"
+                        ? pendingDepositsCount
+                        : (item as any).badge === "pending-withdrawals"
+                          ? pendingWithdrawalsCount
+                          : 0;
+                  const showBadge = !!(item as any).badge && badgeCount > 0;
 
                   return (
                     <Link
@@ -135,6 +405,14 @@ const DashboardLayout = () => {
                       )}
                       <item.icon className={cn("h-4 w-4 shrink-0 transition-transform group-hover:scale-110", active && "animate-pulse")} />
                       <span className="flex-1 truncate">{item.title}</span>
+                      {showBadge && (
+                        <span className={cn(
+                          "flex h-5 min-w-[20px] items-center justify-center rounded-full text-[10px] font-black px-1.5 transition-all",
+                          active ? "bg-[#0A2E1F] text-white" : "bg-red-500 text-white shadow-md"
+                        )}>
+                          {badgeCount > 99 ? "99+" : badgeCount}
+                        </span>
+                      )}
                     </Link>
                   );
                 })}
@@ -188,6 +466,9 @@ const DashboardLayout = () => {
 
           <div className="flex-1" />
 
+          {/* Bell — deposit + withdrawal notifications with unread badge */}
+          <AgentNotificationDropdown token={agentToken} />
+
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-3 hover:bg-muted/50 p-2 rounded-xl transition-colors outline-none focus:ring-2 focus:ring-primary/20">
               <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shadow-sm border border-primary/20">
@@ -225,6 +506,8 @@ const DashboardLayout = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
+
+        <AgentBrowserNotificationsBar />
 
         {/* Page content */}
         <main className="flex-1 p-4 sm:p-6 animate-fade-in">

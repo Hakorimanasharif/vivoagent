@@ -1,0 +1,22 @@
+{
+  "name": "NEXORA - Agent Portal",
+  "short_name": "NEXORA Agent",
+  "description": "NEXORA Agent Dashboard Portal",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#04170f",
+  "theme_color": "#064E3B",
+  "orientation": "portrait",
+  "categories": ["business", "finance"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

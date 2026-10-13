@@ -13,6 +13,7 @@ import Users from "./pages/dashboard/Users";
 import Investors from "./pages/dashboard/Investors";
 import DepositedUsers from "./pages/dashboard/DepositedUsers";
 import WithdrawnUsers from "./pages/dashboard/WithdrawnUsers";
+import Notifications from "./pages/dashboard/Notifications";
 import Profile from "./pages/dashboard/Profile";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="investors" element={<Investors />} />
             <Route path="deposited-users" element={<DepositedUsers />} />
             <Route path="withdrawn-users" element={<WithdrawnUsers />} />
+            <Route path="notifications" element={<Notifications />} />
             <Route path="user-tiers" element={<UserTiers />} />
             <Route path="profile" element={<Profile />} />
           </Route>
