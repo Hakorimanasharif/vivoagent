@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Clock, DollarSign, Users, Eye, Search, Check, X, Loader2, Wallet } from "lucide-react";
 import { toast } from "sonner";
 
-const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || 'https://nexorabackend-eb0p.onrender.com';
+const API_BASE = 'https://nexoralevelbackend.onrender.com';
 
 // Full timestamp with hrs:min:sec
 const formatDateTime = (iso: string | Date | null | undefined) => {

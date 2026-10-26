@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || "https://nexorabackend-eb0p.onrender.com";
+const API_BASE = "https://nexoralevelbackend.onrender.com";
 
 const typeConfig: Record<string, { icon: any; color: string; bg: string }> = {
   user: { icon: User, color: "text-blue-600", bg: "bg-blue-50" },

@@ -8,7 +8,7 @@ import SmartPagination from "@/components/SmartPagination";
 import { Input } from "@/components/ui/input";
 import { ArrowUpCircle, DollarSign, Users, Search, Briefcase, HandCoins, Gift } from "lucide-react";
 
-const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || 'https://nexorabackend-eb0p.onrender.com';
+const API_BASE = 'https://nexoralevelbackend.onrender.com';
 
 const WALLET_LABEL: Record<string, string> = {
   investment: 'Umwuga',
