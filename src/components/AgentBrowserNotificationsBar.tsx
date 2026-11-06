@@ -34,7 +34,7 @@ export default function AgentBrowserNotificationsBar() {
       if (p === "granted") {
         try {
           new Notification("Nexora Agent", {
-            body: "Alerts on — deposits & withdrawals will buzz here.",
+            body: "Alerts on — deposits, withdrawals & other staff alerts will buzz here.",
           });
         } catch { /* ignore */ }
         try {
@@ -55,7 +55,7 @@ export default function AgentBrowserNotificationsBar() {
             <Bell className="h-5 w-5" />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-bold text-foreground">Notifications are blocked — deposit & withdrawal alerts can't reach this phone</p>
+            <p className="text-sm font-bold text-foreground">Notifications are blocked — deposit, withdrawal & other staff alerts can't reach this phone</p>
             <p className="text-xs text-muted-foreground mt-0.5">
               Chrome: lock icon in address bar → Site settings → Notifications → Allow. Then reopen this page.
             </p>
@@ -82,7 +82,7 @@ export default function AgentBrowserNotificationsBar() {
         <div className="min-w-0">
           {step === 0 ? (
             <>
-              <p className="text-sm font-bold text-foreground">Allow notifications for deposit & withdrawal alerts</p>
+              <p className="text-sm font-bold text-foreground">Allow notifications for deposit, withdrawal & other staff alerts</p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Get notified the second a user submits a deposit or withdrawal — even in a background tab.
               </p>

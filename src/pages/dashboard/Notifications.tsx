@@ -144,7 +144,7 @@ const Notifications = () => {
               <BellOff className="h-6 w-6 opacity-40" />
             </div>
             <p className="text-sm font-medium">All caught up!</p>
-            <p className="text-xs text-muted-foreground/60 mt-0.5">Deposit & withdrawal signals will appear here</p>
+            <p className="text-xs text-muted-foreground/60 mt-0.5">Deposit, withdrawal, and other staff alerts will appear here</p>
           </div>
         ) : (
           <div className="divide-y divide-border/40">

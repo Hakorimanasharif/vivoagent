@@ -254,7 +254,7 @@ const AgentNotificationDropdown = ({ token }: { token?: string }) => {
               <span className={`h-2 w-2 rounded-full shrink-0 ${pushState === "on" ? "bg-emerald-500" : pushState === "unknown" ? "bg-muted-foreground/40" : "bg-red-500"}`} />
               <p className="text-[11px] font-semibold text-muted-foreground flex-1">
                 {pushState === "on"
-                  ? "Phone push ON — deposits & withdrawals buzz with app closed"
+                  ? "Phone push ON — deposits, withdrawals & alerts buzz with app closed"
                   : pushState === "off-permission"
                     ? "Phone push OFF — allow notifications in browser"
                     : pushState === "off-backend"

@@ -180,12 +180,30 @@ const DashboardLayout = () => {
 
       const type = String(notif?.type || (deposit ? 'deposit' : withdrawal ? 'withdrawal' : kind)).toLowerCase();
       const isDeposit = type.includes('deposit') || kind.includes('deposit');
-      const amount = Number(deposit?.amount ?? withdrawal?.amount ?? notif?.metadata?.amount ?? 0);
+      const isWithdrawal = type.includes('withdraw') || kind.includes('withdraw');
+      const isInvestment = type.includes('invest') || kind.includes('invest');
+      const amount = Number(
+        deposit?.amount
+        ?? withdrawal?.amount
+        ?? notif?.metadata?.totalReturn
+        ?? notif?.metadata?.amount
+        ?? payload?.amount
+        ?? 0
+      );
       const who = deposit?.user || withdrawal?.user || notif?.message || '';
-      const title = isDeposit
-        ? `New deposit${amount ? `: RWF ${amount.toLocaleString()}` : ''}`
-        : `New withdrawal${amount ? `: RWF ${amount.toLocaleString()}` : ''}`;
-      const description = typeof who === 'string' ? who.slice(0, 140) : 'A user just submitted a request.';
+      let title: string;
+      if (isInvestment) {
+        title = `New investment${amount ? `: RWF ${amount.toLocaleString()}` : ''}`;
+      } else if (isDeposit) {
+        title = `New deposit${amount ? `: RWF ${amount.toLocaleString()}` : ''}`;
+      } else if (isWithdrawal) {
+        title = `New withdrawal${amount ? `: RWF ${amount.toLocaleString()}` : ''}`;
+      } else {
+        title = typeof notif?.title === 'string' && notif.title.trim() ? notif.title : 'New notification';
+      }
+      const description = typeof who === 'string' && who.trim()
+        ? who.slice(0, 140)
+        : 'A new notification is available.';
 
       toast.success(title, { description, duration: 8000 });
       playAlertSound();
